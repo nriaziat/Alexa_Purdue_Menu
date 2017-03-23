@@ -95,19 +95,19 @@ def eats(court):
     foods = whatsToEat(court)
 
     if foods == 0:
-        return statement("Dining court %s closed or not found.", %court)
+        return statement(format("Dining court %s closed or not found.", (court)))
 
     else:
-        return statement("Heres whats being served at %s: %s" %(court, ",".join(foods)))
+        return statement(format("Heres whats being served at %s: %s", (court, ",".join(foods))))
 
 @ask.intent("IS_OPEN", mapping = {'court': 'Court'})
 def isOpen(court):
     foods = whatsToEat(court)
 
     if foods == 0:
-        return statement("Dining court %s closed or not found.", %court)
+        return statement(format("Dining court %s closed or not found.", court))
     else:
-        return statement("Yes! %s is open right now until %s", %(court, timesDict[item][1]))
+        return statement(format("Yes! %s is open right now until %s", (court, timesDict[item][1])))
 
 if __name__ == '__main__':
     app.run()
