@@ -101,7 +101,7 @@ def eats(court):
     else:
         print("Heres whats being served at %s:" %(court))
         for item in whatsToEat(court):
-            statement(item)
+            return (statement(item))
 
 if __name__ == '__main__':
     app.run()
