@@ -100,7 +100,7 @@ def eats(court):
 
     else:
         print("Heres whats being served at %s:" %(court))
-        return statement(foods)
+        return statement(",".join(foods))
 
 if __name__ == '__main__':
     app.run()
