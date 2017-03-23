@@ -1,10 +1,11 @@
 from bs4 import BeautifulSoup as bs
-from contextlib import closing
 from flask import Flask
 from flask_ask import Ask, statement, session, question
 import datetime
 import urllib2
-from urllib import urlencode
+import urllib
+import re
+import requests
 import json
 
 now = datetime.datetime.now()
@@ -16,48 +17,90 @@ hour = now.hour
 minutes = now.minute
 
 app = Flask(__name__)
-ask = Ask(app, '/')
-
-
-baseURL = "https://api.hfs.purdue.edu/menus/v2/locations/"
-courtsURL = {"Earhart": "ERHT", "Ford": "FORD", "Hillenbrand":"HILL", "Wiley":"WILY", "Windosor":"WIND"}
-mealNum = {"Earhart": 3, "Ford": 4, "Hillenbrand":3, "Wiley":3, "Windosor":4}
-
-url = baseURL + 'Wiley' + "/{:0>2}-{:0>2}-{:0>4}".format(month, day, year)
-
+ask = Ask(app, '/alexa')
 
 mealQuestion = "What meal do you want to know about?"
+mealDict = {}
+timesDict = {}
+mealsList = []
 
 def getMeals(url):
     response = urllib2.urlopen(url)
     inputJson = response.read()
     response.close()
-    data = json.loads(inputJson, "ascii")
-    for l in data["Meals"]:
-        for i in l["Stations"]:
-            print ("\n")
-            print ("%s\n" %i["Name"])
-            for j in i["Items"]:
-                print j["Name"]
+    data = json.loads(inputJson)
 
-"""@ask.launch
-def start_skill():
-    welcome_message = 'Hello, what dining court would you like to know about?'
-    return question(welcome_message)
+    for l in data["Meals"]:
+        try:
+            l["Status"] != 'Closed'
+        except:
+            mealsList.append(l["Name"])
+            mealDict[l["Name"]] = {}
+            timesDict[l["Name"]] = [l["Hours"]["StartTime"], l["Hours"]["EndTime"]]
+            for i in l["Stations"]:
+                #print ("\n")
+                #print ("%s\n" %i["Name"])
+                mealDict[l["Name"]][i["Name"]] = []
+                for j in i["Items"]:
+                    mealDict[l["Name"]][i["Name"]].append(j["Name"])
+                    #print j["Name"]
+
+    return [mealDict,timesDict]
+
+def time_in_range(start, end, x):
+    if start <= end:
+        return start <= x <= end
+    else:
+        return start <= x or x <= end
+
+def currMeal():
+    for item in mealsList:
+        start = timesDict[item][0]
+        start = datetime.datetime.strptime(start, '%H:%M:%S').time()
+
+        end = timesDict[item][1]
+        end = datetime.datetime.strptime(end, '%H:%M:%S').time()
+
+        if time_in_range(start, end, now.time()):
+            return item
+    return 0
+
+def makeURL(court):
+    baseURL = "https://api.hfs.purdue.edu/menus/v2/locations/"
+    url = baseURL + court + "/{:0>2}-{:0>2}-{:0>4}".format(month, day, year)
+    return url
+
+def whatsToEat(court):
+    foods = []
+    url = makeURL(court)
+    getMeals(url)
+    meal = currMeal()
+    if meal == 0:
+        return 0
+    for item in mealDict[meal]:
+        for food in mealDict[meal][item]:
+            foods.append(food)
+    return foods
+
+"""
+@ask.launch
 
 @ask.intent("GET_MEAL", mapping={'court': 'Court'})
-def function(court):
 
-    url = baseURL + courtsURL(court) + "/%02d-%02d-%04d".format(month, day, year)
-    mealDict = getMeals(url)
-    stationList = mealDict[1]
-    mealDict = mealDict[0]
-
-    return statement('%s is serving %s for %s', %(court, serving, meal))
 
 if __name__ == '__main__':
     app.run()
-
 """
 
-getMeals(url)
+court = raw_input("Input dining court: ")
+
+print("Heres whats being served at %s:\n" %(court))
+
+foods = whatsToEat(court)
+
+if foods == 0:
+    print "Nothing"
+
+else:
+    for item in whatsToEat(court):
+        print item
