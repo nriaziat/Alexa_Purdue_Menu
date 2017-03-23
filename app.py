@@ -102,12 +102,12 @@ def eats(court):
 
 @ask.intent("IS_OPEN", mapping = {'diner': 'Court'})
 def isOpen(diner):
-    foods = whatsToEat(court)
+    foods = whatsToEat(diner)
 
     if foods == 0:
-        return statement("Dining court {!s} closed or not found.".format(court))
+        return statement("Dining court {!s} closed or not found.".format(diner))
     else:
-        return statement("Yes! {!s} is open right now until {!s}".format(court, timesDict[currMeal()][1]))
+        return statement("Yes! {!s} is open right now until {!s}".format(diner, timesDict[currMeal()][1]))
 
 if __name__ == '__main__':
     app.run()
