@@ -109,9 +109,5 @@ def isOpen(court):
     else:
         return statement("Yes! {!s} is open right now until {!s}".format(court, timesDict[currMeal()][1]))
 
-#if __name__ == '__main__':
-#    app.run()
-
-court = raw_input("Input court: ")
-
-isOpen(court)
+if __name__ == '__main__':
+    app.run()
