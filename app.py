@@ -100,8 +100,8 @@ def eats(court):
     else:
         return statement("Heres whats being served at {!s}: {!s}".format(court, ",".join(foods)))
 
-@ask.intent("IS_OPEN", mapping = {'court': 'Court'})
-def isOpen(court):
+@ask.intent("IS_OPEN", mapping = {'diner': 'Court'})
+def isOpen(diner):
     foods = whatsToEat(court)
 
     if foods == 0:
