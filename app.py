@@ -1,56 +1,46 @@
 from bs4 import BeautifulSoup as bs
 from contextlib import closing
-from selenium.webdriver import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
 from flask import Flask
 from flask_ask import Ask, statement, session, question
+import datetime
+import urllib2
+from urllib import urlencode
+import json
+
+now = datetime.datetime.now()
+
+year = now.year
+month = now.month
+day = now.day
+hour = now.hour
+minutes = now.minute
 
 app = Flask(__name__)
 ask = Ask(app, '/')
-sess = requests.Session()
-driver = webdriver.PhantomJS()
-baseURL = "http://www.housing.purdue.edu/Menus/"
+
+
+baseURL = "https://api.hfs.purdue.edu/menus/v2/locations/"
 courtsURL = {"Earhart": "ERHT", "Ford": "FORD", "Hillenbrand":"HILL", "Wiley":"WILY", "Windosor":"WIND"}
 mealNum = {"Earhart": 3, "Ford": 4, "Hillenbrand":3, "Wiley":3, "Windosor":4}
+
+url = baseURL + 'Wiley' + "/{:0>2}-{:0>2}-{:0>4}".format(month, day, year)
+
 
 mealQuestion = "What meal do you want to know about?"
 
 def getMeals(url):
-    # use firefox to get page with javascript generated content
-    with closing(webdriver.PhantomJS()) as browser:
-        browser.get(url)
+    response = urllib2.urlopen(url)
+    inputJson = response.read()
+    response.close()
+    data = json.loads(inputJson, "ascii")
+    for l in data["Meals"]:
+        for i in l["Stations"]:
+            print ("\n")
+            print ("%s\n" %i["Name"])
+            for j in i["Items"]:
+                print j["Name"]
 
-         # wait for the page to load
-        WebDriverWait(browser, timeout=10).until(lambda x: x.find_element_by_class_name('station-item-text'))
-         # store it to string variable
-        page_source = browser.page_source
-
-    page_source = (page_source.encode("utf-8"))
-
-    mealDict = {}
-    stationList = []
-
-    soup = bs(page_source, "html5lib")
-
-    for node in soup.findAll("span", {'class': 'station-item-text'}):
-        meal = (''.join(node.findAll(text=True))).encode("utf-8")
-        #print meal
-        station =  node.parent.parent.parent.parent.find('div', {'class': 'station-name'}).text
-        station = station.encode("utf-8")
-        #print station
-        stationList.append(station)
-
-        try:
-            mealDict[station]
-        except KeyError:
-            mealDict[station] = [meal]
-        else:
-            mealDict[station].append(meal)
-
-    #print mealDict
-    return mealDict
-
-@ask.launch
+"""@ask.launch
 def start_skill():
     welcome_message = 'Hello, what dining court would you like to know about?'
     return question(welcome_message)
@@ -58,7 +48,7 @@ def start_skill():
 @ask.intent("GET_MEAL", mapping={'court': 'Court'})
 def function(court):
 
-    url = baseURL + courtsURL(court)
+    url = baseURL + courtsURL(court) + "/%02d-%02d-%04d".format(month, day, year)
     mealDict = getMeals(url)
     stationList = mealDict[1]
     mealDict = mealDict[0]
@@ -67,3 +57,7 @@ def function(court):
 
 if __name__ == '__main__':
     app.run()
+
+"""
+
+getMeals(url)
