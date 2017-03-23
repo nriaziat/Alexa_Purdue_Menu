@@ -31,7 +31,14 @@ def getMeals(url):
 
     for l in data["Meals"]:
         try:
-            l["Status"] == 'Closed'
+            if l["Satus"] == 'Open':
+                mealsList.append(l["Name"])
+                mealDict[l["Name"]] = {}
+                timesDict[l["Name"]] = [l["Hours"]["StartTime"], l["Hours"]["EndTime"]]
+                for i in l["Stations"]:
+                    mealDict[l["Name"]][i["Name"]] = []
+                    for j in i["Items"]:
+                        mealDict[l["Name"]][i["Name"]].append(j["Name"])
         except:
             mealsList.append(l["Name"])
             mealDict[l["Name"]] = {}
@@ -40,7 +47,6 @@ def getMeals(url):
                 mealDict[l["Name"]][i["Name"]] = []
                 for j in i["Items"]:
                     mealDict[l["Name"]][i["Name"]].append(j["Name"])
-]
 
 def time_in_range(start, end, x):
     if start <= end:
