@@ -19,7 +19,6 @@ minutes = now.minute
 app = Flask(__name__)
 ask = Ask(app, '/')
 
-mealQuestion = "What meal do you want to know about?"
 mealDict = {}
 timesDict = {}
 mealsList = []
@@ -96,11 +95,19 @@ def eats(court):
     foods = whatsToEat(court)
 
     if foods == 0:
-        return statement("Dining court closed or not found.")
+        return statement("Dining court %s closed or not found.", %court)
 
     else:
-        print("Heres whats being served at %s:" %(court))
-        return statement(",".join(foods))
+        return statement("Heres whats being served at %s: %s" %(court, ",".join(foods)))
+
+@ask.intent("IS_OPEN", mapping = {'court': 'Court'})
+def isOpen(court):
+    foods = whatsToEat(court)
+
+    if foods == 0:
+        return statement("Dining court %s closed or not found.", %court)
+    else:
+        return statement("Yes! %s is open right now until %s", %(court, timesDict[item][1]))
 
 if __name__ == '__main__':
     app.run()
