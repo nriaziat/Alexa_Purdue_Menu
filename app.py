@@ -28,18 +28,8 @@ def getMeals(url):
     inputJson = response.read()
     response.close()
     data = json.loads(inputJson)
-
     for l in data["Meals"]:
-        try:
-            if l["Status"] != 'Closed':
-                mealsList.append(l["Name"])
-                mealDict[l["Name"]] = {}
-                timesDict[l["Name"]] = [l["Hours"]["StartTime"], l["Hours"]["EndTime"]]
-                for i in l["Stations"]:
-                    mealDict[l["Name"]][i["Name"]] = []
-                    for j in i["Items"]:
-                        mealDict[l["Name"]][i["Name"]].append(j["Name"])
-        except:
+        if l["Hours"] != None:
             mealsList.append(l["Name"])
             mealDict[l["Name"]] = {}
             timesDict[l["Name"]] = [l["Hours"]["StartTime"], l["Hours"]["EndTime"]]
@@ -104,7 +94,7 @@ def eats(court):
 
 @ask.intent("IS_OPEN", mapping = {'court': 'Court'})
 def isOpen(court):
-    foods = whatsToEat(diner)
+    foods = whatsToEat(court)
 
     if foods == 0:
         return statement("Dining court {!s} closed or not found.".format(court))
