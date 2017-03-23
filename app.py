@@ -73,34 +73,35 @@ def makeURL(court):
 def whatsToEat(court):
     foods = []
     url = makeURL(court)
-    getMeals(url)
-    meal = currMeal()
-    if meal == 0:
+    try:
+        getMeals(url)
+    except urllib2.HTTPError:
         return 0
-    for item in mealDict[meal]:
-        for food in mealDict[meal][item]:
-            foods.append(food)
-    return foods
+    else:
+        meal = currMeal()
+        if meal == 0:
+            return 0
+        for item in mealDict[meal]:
+            for food in mealDict[meal][item]:
+                foods.append(food)
+        return foods
 
-"""
 @ask.launch
+def getCourt():
+    welcome_message = "What dining court do you want to know about?"
+    return question(welcome_message)
 
 @ask.intent("GET_MEAL", mapping={'court': 'Court'})
+def eats(court):
+    foods = whatsToEat(court)
 
+    if foods == 0:
+        return statement("Dining court closed or not found.")
+
+    else:
+        print("Heres whats being served at %s:" %(court))
+        for item in whatsToEat(court):
+            statement(item)
 
 if __name__ == '__main__':
     app.run()
-"""
-
-court = raw_input("Input dining court: ")
-
-print("Heres whats being served at %s:\n" %(court))
-
-foods = whatsToEat(court)
-
-if foods == 0:
-    print "Nothing"
-
-else:
-    for item in whatsToEat(court):
-        print item
