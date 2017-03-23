@@ -107,11 +107,11 @@ def isOpen(court):
     if foods == 0:
         return statement("Dining court {!s} closed or not found.".format(court))
     else:
-        return statement("Yes! {!s} is open right now until {!s}".format(court, timesDict[item][1]))
+        return statement("Yes! {!s} is open right now until {!s}".format(court, timesDict[currMeal()][1]))
 
 #if __name__ == '__main__':
 #    app.run()
 
 court = raw_input("Input court: ")
 
-eats(court)
+isOpen(court)
