@@ -31,20 +31,16 @@ def getMeals(url):
 
     for l in data["Meals"]:
         try:
-            l["Status"] != 'Closed'
+            l["Status"] == 'Closed'
         except:
             mealsList.append(l["Name"])
             mealDict[l["Name"]] = {}
             timesDict[l["Name"]] = [l["Hours"]["StartTime"], l["Hours"]["EndTime"]]
             for i in l["Stations"]:
-                #print ("\n")
-                #print ("%s\n" %i["Name"])
                 mealDict[l["Name"]][i["Name"]] = []
                 for j in i["Items"]:
                     mealDict[l["Name"]][i["Name"]].append(j["Name"])
-                    #print j["Name"]
-
-    return [mealDict,timesDict]
+]
 
 def time_in_range(start, end, x):
     if start <= end:
@@ -100,14 +96,14 @@ def eats(court):
     else:
         return statement("Heres whats being served at {!s}: {!s}".format(court, ",".join(foods)))
 
-@ask.intent("IS_OPEN", mapping = {'diner': 'Court'})
-def isOpen(diner):
+@ask.intent("IS_OPEN", mapping = {'court': 'Court'})
+def isOpen(court):
     foods = whatsToEat(diner)
 
     if foods == 0:
-        return statement("Dining court {!s} closed or not found.".format(diner))
+        return statement("Dining court {!s} closed or not found.".format(court))
     else:
-        return statement("Yes! {!s} is open right now until {!s}".format(diner, timesDict[currMeal()][1]))
+        return statement("Yes! {!s} is open right now until {!s}".format(court, timesDict[currMeal()][1]))
 
 if __name__ == '__main__':
     app.run()
