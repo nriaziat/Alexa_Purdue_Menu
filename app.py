@@ -17,7 +17,7 @@ hour = now.hour
 minutes = now.minute
 
 app = Flask(__name__)
-ask = Ask(app, '/alexa')
+ask = Ask(app, '/')
 
 mealQuestion = "What meal do you want to know about?"
 mealDict = {}
