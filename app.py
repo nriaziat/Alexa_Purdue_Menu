@@ -31,7 +31,7 @@ def getMeals(url):
 
     for l in data["Meals"]:
         try:
-            if l["Satus"] == 'Open':
+            if l["Status"] != 'Closed':
                 mealsList.append(l["Name"])
                 mealDict[l["Name"]] = {}
                 timesDict[l["Name"]] = [l["Hours"]["StartTime"], l["Hours"]["EndTime"]]
